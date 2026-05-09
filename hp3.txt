@@ -1,0 +1,92 @@
+#include <iostream>
+#include <vector>
+#include <omp.h>
+
+using namespace std;
+
+int main() {
+
+    int n;
+
+    cout << "Enter number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+
+    cout << "Enter array elements:\n";
+
+    for(int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    // ---------------- Sequential Operations ----------------
+
+    int min_val = arr[0];
+    int max_val = arr[0];
+    int sum = 0;
+
+    double start = omp_get_wtime();
+
+    for(int i = 0; i < n; i++) {
+
+        if(arr[i] < min_val) {
+            min_val = arr[i];
+        }
+
+        if(arr[i] > max_val) {
+            max_val = arr[i];
+        }
+
+        sum += arr[i];
+    }
+
+    double end = omp_get_wtime();
+
+    float avg = (float)sum / n;
+
+    cout << "\n----- Sequential Results -----\n";
+
+    cout << "Minimum = " << min_val << endl;
+    cout << "Maximum = " << max_val << endl;
+    cout << "Sum = " << sum << endl;
+    cout << "Average = " << avg << endl;
+
+    cout << "Sequential Time = " << (end - start) << endl;
+
+    // ---------------- Parallel Reduction ----------------
+
+    int p_min = arr[0];
+    int p_max = arr[0];
+    int p_sum = 0;
+
+    start = omp_get_wtime();
+
+    #pragma omp parallel for reduction(min:p_min) reduction(max:p_max) reduction(+:p_sum)
+    for(int i = 0; i < n; i++) {
+
+        if(arr[i] < p_min) {
+            p_min = arr[i];
+        }
+
+        if(arr[i] > p_max) {
+            p_max = arr[i];
+        }
+
+        p_sum += arr[i];
+    }
+
+    end = omp_get_wtime();
+
+    float p_avg = (float)p_sum / n;
+
+    cout << "\n----- Parallel Reduction Results -----\n";
+
+    cout << "Minimum = " << p_min << endl;
+    cout << "Maximum = " << p_max << endl;
+    cout << "Sum = " << p_sum << endl;
+    cout << "Average = " << p_avg << endl;
+
+    cout << "Parallel Time = " << (end - start) << endl;
+
+    return 0;
+}
