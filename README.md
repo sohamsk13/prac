@@ -1,1 +1,1 @@
-g++ -fopenmp pract.cpp -o 
+g++ -fopenmp pract.cpp -o output
